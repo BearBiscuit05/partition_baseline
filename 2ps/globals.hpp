@@ -11,7 +11,7 @@
 #include <gflags/gflags.h>
 #include <glog/logging.h>
 
-#include "converter/util.hpp"
+#include "../converter/util.hpp"
 
 class Globals
 {

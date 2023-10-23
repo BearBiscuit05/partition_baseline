@@ -17,10 +17,12 @@ find_package(gflags 2.1.2 REQUIRED)
 
 add_library(converter converter/conversions.cpp converter/conversions.hpp converter/util.cpp converter/util.hpp converter/shuffler.cpp converter/shuffler.hpp)
 
-add_executable(twophasepartitioner main.cpp globals.cpp twophasepartitioner.cpp stats.cpp streamcom.cpp)
+add_executable(twophasepartitioner 2ps/main.cpp 2ps/globals.cpp 2ps/twophasepartitioner.cpp 2ps/stats.cpp 2ps/streamcom.cpp)
 add_executable(modularity modularity_calculator/main.cpp)
 add_executable(dbh dbh/main.cpp dbh/dbh.cpp dbh/dbh.hpp dbh/globals.cpp dbh/globals.hpp dbh/stats.cpp dbh/stats.hpp)
+add_executable(random random/main.cpp random/random.cpp random/random.hpp random/globals.cpp random/globals.hpp random/stats.cpp random/stats.hpp)
 
 target_link_libraries(twophasepartitioner converter glog gflags)
 target_link_libraries(modularity gflags)
 target_link_libraries(dbh converter glog gflags)
+target_link_libraries(random converter glog gflags)

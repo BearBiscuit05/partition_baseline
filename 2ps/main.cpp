@@ -7,10 +7,10 @@
 #include "stats.hpp"
 #include "twophasepartitioner.hpp"
 #include "streamcom.hpp"
-#include "converter/conversions.hpp"
+#include "../converter/conversions.hpp"
 //#include "rabbit_order/reorder.hpp"
 
-#include "converter/shuffler.hpp"
+#include "../converter/shuffler.hpp"
 
 DEFINE_string(filename, "", "name of the file to store edge list of a graph.");
 DEFINE_int32(p, 4, "the number of partitions that the graph will be divided into.");

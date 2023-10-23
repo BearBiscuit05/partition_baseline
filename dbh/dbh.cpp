@@ -12,7 +12,8 @@ DBH::DBH(Globals &GLOBALS) : globals(GLOBALS)
     shrink = static_cast<int>(random()) % MAX_SHRINK;
 
     if (FLAGS_write_parts) {
-        part_file.open(FLAGS_parts_filename + ".txt");
+        part_file.open(FLAGS_parts_filename + ".bin",std::ios::out | std::ios::binary);
+        //part_file.open(FLAGS_parts_filename + ".txt");
     }
 #ifdef STATS
     vertex_partition_matrix.resize(globals.NUM_VERTICES);
@@ -29,7 +30,10 @@ void DBH::perform_partitioning()
 }
 
 void DBH::write_edge(edge_t e, int p){
-    part_file << e.first << " " << e.second << " " << p << std::endl;
+    part_file.write(reinterpret_cast<char*>(&e.first), sizeof(e.first));
+    part_file.write(reinterpret_cast<char*>(&e.second), sizeof(e.second));
+    part_file.write(reinterpret_cast<char*>(&p), sizeof(p));
+    //part_file << e.first << " " << e.second << " " << p << std::endl;
 }
 
 

@@ -5,7 +5,7 @@
 #ifdef STATS
 #include "stats.hpp"
 #endif
-#include "dbh.hpp"
+#include "random.hpp"
 #include "../converter/conversions.hpp"
 #include "../converter/shuffler.hpp"
 
@@ -17,7 +17,7 @@ DEFINE_bool(write_parts, false, "write out the partitions to a file");
 DEFINE_string(parts_filename, "", "partitions filename");
 DEFINE_bool(shuffle, false, "shuffle the dataset");
 
-void start_partitioning(Globals& globals, DBH& partitioner, std::string& binedgelist);
+void start_partitioning(Globals& globals, Random& partitioner, std::string& binedgelist);
 
 int main(int argc, char *argv[]) 
 {
@@ -30,6 +30,8 @@ int main(int argc, char *argv[])
     // convert edge list to binary format
     Converter* converter;
     std::string binedgelist;
+    // converter = new Converter(FLAGS_filename);
+    // binedgelist = binedgelist_name(FLAGS_filename);
     if (FLAGS_shuffle)
     {
         LOG(INFO) << "Using shuffled dataset";
@@ -48,20 +50,20 @@ int main(int argc, char *argv[])
     Globals globals(fin, FLAGS_filename, FLAGS_p);
 
     // init partitioner
-    DBH dbh(globals);
+    Random random(globals);
 
     // start partitioner
-    start_partitioning(globals, dbh, binedgelist);
+    start_partitioning(globals, random, binedgelist);
 
 #ifdef STATS
-    Stats stats(dbh, globals);
+    Stats stats(random, globals);
     stats.compute_and_print_stats();
 #endif
 
   return 0;
 };
 
-void start_partitioning(Globals& globals, DBH& partitioner, std::string& binedgelist)
+void start_partitioning(Globals& globals, Random& partitioner, std::string& binedgelist)
 {
     Timer partitioner_timer;
     partitioner_timer.start();
