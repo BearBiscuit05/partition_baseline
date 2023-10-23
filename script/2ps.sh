@@ -34,13 +34,13 @@ monitor_memory() {
 cd ../build/
 # FILEPATH='/home/bear/workspace/single-gnn/data/partition/TW/output.txt'
 # FILEPATH='/home/bear/workspace/single-gnn/data/partition/FR/output.txt'
-# FILEPATH='/home/bear/workspace/single-gnn/data/partition/UK/output.txt'
-FILEPATH='/home/bear/workspace/single-gnn/data/partition/PA/output.txt'
+FILEPATH='/home/bear/workspace/single-gnn/data/partition/UK/output.txt'
+# FILEPATH='/home/bear/workspace/single-gnn/data/partition/PA/output.txt'
 
 PARTITION=4
 IFSAVE=false
 SAVENAME="save_${PARTITION}"
-echo ${SAVENAME}
+
 
 ./twophasepartitioner -filename ${FILEPATH} -p ${PARTITION} -shuffle \
     false -memsize 100 -prepartitioner_type streamcom -balance_ratio 1.05 -str_iters 2

@@ -20,7 +20,8 @@ private:
 #endif
 public:
     static const int MAX_SHRINK = 100;
-    std::ofstream part_file;
+    //std::ofstream part_file;
+    std::vector<std::ofstream> part_files;
     explicit Random(Globals& GLOBALS);
     void perform_partitioning();
     void do_random(const std::vector<edge_t>& edges);

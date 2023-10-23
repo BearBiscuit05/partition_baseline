@@ -18,8 +18,9 @@ private:
     bool tie_breaker_min_load = false;
     Globals& globals;
     const double epsilon = 1;
-    std::ofstream part_file;
-
+    //std::ofstream part_file;
+    std::vector<std::ofstream> part_files;
+    
     std::vector<uint64_t> partition_volume;
     std::vector<uint32_t> com2part;
 

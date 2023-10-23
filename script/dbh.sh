@@ -33,13 +33,19 @@ monitor_memory() {
 
 cd ../build/
 # FILEPATH='/home/bear/workspace/single-gnn/data/partition/TW/output.txt'
+# DATANAME='TW'
+
 # FILEPATH='/home/bear/workspace/single-gnn/data/partition/FR/output.txt'
+# DATANAME='FR'
+
 # FILEPATH='/home/bear/workspace/single-gnn/data/partition/UK/output.txt'
+# DATANAME='UK'
+
 FILEPATH='/home/bear/workspace/single-gnn/data/partition/PA/output.txt'
+DATANAME='PA'
 
 PARTITION=4
 IFSAVE=false
-SAVENAME="save_${PARTITION}"
-echo ${SAVENAME}
+SAVENAME="dbh_${DATANAME}_${PARTITION}"
 
 ./dbh -filename ${FILEPATH} -p ${PARTITION} -shuffle false 

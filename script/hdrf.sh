@@ -33,13 +33,20 @@ monitor_memory() {
 
 cd ../build/
 # FILEPATH='/home/bear/workspace/single-gnn/data/partition/TW/output.txt'
+# DATANAME='TW'
+
 # FILEPATH='/home/bear/workspace/single-gnn/data/partition/FR/output.txt'
+# DATANAME='FR'
+
 # FILEPATH='/home/bear/workspace/single-gnn/data/partition/UK/output.txt'
+# DATANAME='UK'
+
 FILEPATH='/home/bear/workspace/single-gnn/data/partition/PA/output.txt'
+DATANAME='PA'
 
 PARTITION=4
 IFSAVE=false
-SAVENAME="save_${PARTITION}"
+SAVENAME="hdrf_${DATANAME}_${PARTITION}"
 
 ./twophasepartitioner -filename /home/bear/workspace/single-gnn/data/partition/PA/output.txt -p 4 -use_hdrf -lambda 1.1 -shuffle false
 

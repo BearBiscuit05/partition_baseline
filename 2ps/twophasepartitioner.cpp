@@ -56,9 +56,8 @@ void TwoPhasePartitioner::do_sorted_com_prepartitioning(std::vector<edge_t> edge
 }
 
 void TwoPhasePartitioner::write_edge(edge_t e, int p){
-    part_file.write(reinterpret_cast<char*>(&e.first), sizeof(e.first));
-    part_file.write(reinterpret_cast<char*>(&e.second), sizeof(e.second));
-    part_file.write(reinterpret_cast<char*>(&p), sizeof(p));
+    part_files[p].write(reinterpret_cast<char*>(&e.first), sizeof(e.first));
+    part_files[p].write(reinterpret_cast<char*>(&e.second), sizeof(e.second));
 	//part_file << e.first << " " << e.second << " " << p << std::endl;
 }
 
@@ -93,9 +92,12 @@ void TwoPhasePartitioner::perform_prepartition_and_partition(std::vector<uint32_
     LOG(INFO) << "Runtime for assigning commmunities to partitions " <<" [sec]: " << timer.get_time(); 
 
     LOG(INFO) << "Writing out partitions is enabled? " << FLAGS_write_parts << std::endl;
-    if (FLAGS_write_parts){
-        part_file.open(FLAGS_parts_filename + ".bin",std::ios::out | std::ios::binary);
-		//part_file.open(FLAGS_parts_filename + ".txt");
+    if (FLAGS_write_parts) {
+        for (int i = 0 ; i < globals.NUM_PARTITIONS ; i++) {
+            std::string fileName = FLAGS_parts_filename + "_" + std::to_string(i) + ".bin";
+            part_files[i].open(fileName,std::ios::out | std::ios::binary);
+        }
+        //part_file.open(FLAGS_parts_filename + ".bin",std::ios::out | std::ios::binary);
     }
 
     globals.read_and_do(sorted_com_prepartition_forwarder, this, "sorted communities prepartitioning");
@@ -112,21 +114,30 @@ void TwoPhasePartitioner::perform_prepartition_and_partition(std::vector<uint32_
     	globals.read_and_do(linear_forwarder, this, "partitions with linear streaming edge partitioning");
     }
 
-    if (FLAGS_write_parts){
-        part_file.close();
+    if (FLAGS_write_parts) {
+        for (int i = 0 ; i < globals.NUM_PARTITIONS ; i++) {
+            part_files[i].close();
+        }
+        
     }
 }
 
 void TwoPhasePartitioner::perform_partitioning()
 {
-    LOG(INFO) << "Writing out partitions is enabled? " << FLAGS_write_parts << std::endl;
-    if (FLAGS_write_parts){
-        part_file.open(FLAGS_parts_filename + ".txt");
+    if (FLAGS_write_parts) {
+        for (int i = 0 ; i < globals.NUM_PARTITIONS ; i++) {
+            std::string fileName = FLAGS_parts_filename + "_" + std::to_string(i) + ".bin";
+            part_files[i].open(fileName,std::ios::out | std::ios::binary);
+        }
+        //part_file.open(FLAGS_parts_filename + ".bin",std::ios::out | std::ios::binary);
     }
     // start partitioner with hdrf
     globals.read_and_do(hdrf_forwarder, this, "partitions with hdrf");
-    if (FLAGS_write_parts){
-        part_file.close();
+    if (FLAGS_write_parts) {
+        for (int i = 0 ; i < globals.NUM_PARTITIONS ; i++) {
+            part_files[i].close();
+        }
+        
     }
 }
 

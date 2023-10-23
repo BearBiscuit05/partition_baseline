@@ -11,9 +11,13 @@ Random::Random(Globals &GLOBALS) : globals(GLOBALS)
 {
     seed = static_cast<double>(random()) / RAND_MAX;
     shrink = static_cast<int>(random()) % MAX_SHRINK;
-
+    part_files.resize(globals.NUM_PARTITIONS);
     if (FLAGS_write_parts) {
-        part_file.open(FLAGS_parts_filename + ".bin",std::ios::out | std::ios::binary);
+        for (int i = 0 ; i < globals.NUM_PARTITIONS ; i++) {
+            std::string fileName = FLAGS_parts_filename + "_" + std::to_string(i) + ".bin";
+            part_files[i].open(fileName,std::ios::out | std::ios::binary);
+        }
+        //part_file.open(FLAGS_parts_filename + ".bin",std::ios::out | std::ios::binary);
     }
 #ifdef STATS
     vertex_partition_matrix.resize(globals.NUM_VERTICES);
@@ -25,14 +29,16 @@ void Random::perform_partitioning()
 {
     globals.read_and_do(random_forwarder, this, "partitions with Random");
     if (FLAGS_write_parts) {
-        part_file.close();
+        for (int i = 0 ; i < globals.NUM_PARTITIONS ; i++) {
+            part_files[i].close();
+        }
+        
     }
 }
 
 void Random::write_edge(edge_t e, int p){
-    part_file.write(reinterpret_cast<char*>(&e.first), sizeof(e.first));
-    part_file.write(reinterpret_cast<char*>(&e.second), sizeof(e.second));
-    part_file.write(reinterpret_cast<char*>(&p), sizeof(p));
+    part_files[p].write(reinterpret_cast<char*>(&e.first), sizeof(e.first));
+    part_files[p].write(reinterpret_cast<char*>(&e.second), sizeof(e.second));
     // part_file << e.first << "\t" << e.second << "\t" << p << std::endl;
 }
 

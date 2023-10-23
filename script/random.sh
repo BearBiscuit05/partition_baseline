@@ -2,17 +2,22 @@
 
 cd ../build/
 # FILEPATH='/home/bear/workspace/single-gnn/data/partition/TW/output.txt'
+# DATANAME='TW'
+
 # FILEPATH='/home/bear/workspace/single-gnn/data/partition/FR/output.txt'
+# DATANAME='FR'
+
 # FILEPATH='/home/bear/workspace/single-gnn/data/partition/UK/output.txt'
+# DATANAME='UK'
 
 FILEPATH='/home/bear/workspace/single-gnn/data/partition/PA/output.txt'
 DATANAME='PA'
+
 PARTITION=4
 IFSAVE=false
-SAVENAME="save_${PARTITION}"
+SAVENAME="random_${DATANAME}_${PARTITION}"
 interval=1
 mem_log=""
-echo ${SAVENAME}
 
 monitor_memory() {
     echo "=============================================" >> $mem_log
@@ -46,4 +51,4 @@ monitor_memory() {
 
 
 
-./random -filename ${FILEPATH} -p ${PARTITION} -shuffle false -write_parts true -parts_filename 'save_part'
+./random -filename ${FILEPATH} -p ${PARTITION} -shuffle false -write_parts true -parts_filename '../save_part'
