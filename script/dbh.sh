@@ -28,6 +28,7 @@ monitor_memory() {
     fi
     echo "平均内存占用: $average_memory_usage_mb MB" >> $memory_usage_file
     echo "峰值内存占用: $((peak_memory_usage_kb / 1024)) MB" >> $memory_usage_file
+    echo "=============================================" >> $memory_usage_file
 }
 
 
@@ -41,11 +42,21 @@ cd ../build/
 # FILEPATH='/home/bear/workspace/single-gnn/data/partition/UK/output.txt'
 # DATANAME='UK'
 
-FILEPATH='/home/bear/workspace/single-gnn/data/partition/PA/output.txt'
-DATANAME='PA'
+# FILEPATH='/home/bear/workspace/single-gnn/data/partition/PA/output.txt'
+# DATANAME='PA'
 
-PARTITION=4
-IFSAVE=false
-SAVENAME="dbh_${DATANAME}_${PARTITION}"
 
-./dbh -filename ${FILEPATH} -p ${PARTITION} -shuffle false 
+FILEPATH='/home/bear/TrillionG/10B_output/graph.txt'
+PARTITION=64
+# IFSAVE=false
+# SAVENAME="dbh_${DATANAME}_${PARTITION}"
+
+./dbh -filename ${FILEPATH} -p ${PARTITION} -shuffle false &
+
+interval=5
+memory_usage_file="../script/mem.log"
+
+lastPid=$!
+logMsg="./dbh -filename ${FILEPATH} -p ${PARTITION} -shuffle false"
+echo $logMsg >> $memory_usage_file
+monitor_memory $lastPid $memory_usage_file $interval

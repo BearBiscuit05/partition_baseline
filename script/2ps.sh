@@ -28,19 +28,42 @@ monitor_memory() {
     fi
     echo "平均内存占用: $average_memory_usage_mb MB" >> $memory_usage_file
     echo "峰值内存占用: $((peak_memory_usage_kb / 1024)) MB" >> $memory_usage_file
+    echo "=============================================" >> $memory_usage_file
 }
 
 
 cd ../build/
 # FILEPATH='/home/bear/workspace/single-gnn/data/partition/TW/output.txt'
+# DATANAME='TW'
+
 # FILEPATH='/home/bear/workspace/single-gnn/data/partition/FR/output.txt'
-FILEPATH='/home/bear/workspace/single-gnn/data/partition/UK/output.txt'
+# DATANAME='FR'
+
+# FILEPATH='/home/bear/workspace/single-gnn/data/partition/UK/output.txt'
+# DATANAME='UK'
+
 # FILEPATH='/home/bear/workspace/single-gnn/data/partition/PA/output.txt'
+# DATANAME='PA'
 
-PARTITION=4
-IFSAVE=false
-SAVENAME="save_${PARTITION}"
+# FILEPATH='/home/bear/workspace/single-gnn/data/raid/reddit/output.txt'
+# DATANAME='RD'
 
+PARTITION=64
+# IFSAVE=true
+FILEPATH="/home/bear/TrillionG/output/graph.txt"
+
+# echo ${SAVENAME}
+# ./twophasepartitioner -filename ${FILEPATH} -p ${PARTITION} -shuffle \
+#     false -memsize 100 -prepartitioner_type streamcom -balance_ratio 1.05 -str_iters 2 -write_parts true -parts_filename ${SAVENAME}
 
 ./twophasepartitioner -filename ${FILEPATH} -p ${PARTITION} -shuffle \
-    false -memsize 100 -prepartitioner_type streamcom -balance_ratio 1.05 -str_iters 2
+    false -memsize 100 -prepartitioner_type streamcom -balance_ratio 1.00 -str_iters 1 &
+
+interval=5
+memory_usage_file="../script/mem.log"
+
+lastPid=$!
+logMsg="./twophasepartitioner -filename ${FILEPATH} -p ${PARTITION} -shuffle \
+    false -memsize 100 -prepartitioner_type streamcom -balance_ratio 1.00 -str_iters 1"
+echo $logMsg >> $memory_usage_file
+monitor_memory $lastPid $memory_usage_file $interval

@@ -44,7 +44,7 @@ public:
     std::vector<uint64_t>& get_edge_load();
     void perform_partitioning();
     std::vector<std::bitset<MAX_NUM_PARTITION>> get_vertex_partition_matrix();
-
+    void backdoor(std::vector<uint32_t> coms,std::vector<uint32_t> com2part);
 };
 
 #endif
