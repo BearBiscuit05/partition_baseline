@@ -28,6 +28,7 @@ monitor_memory() {
     fi
     echo "平均内存占用: $average_memory_usage_mb MB" >> $memory_usage_file
     echo "峰值内存占用: $((peak_memory_usage_kb / 1024)) MB" >> $memory_usage_file
+    echo "=============================================" >> $memory_usage_file
 }
 
 

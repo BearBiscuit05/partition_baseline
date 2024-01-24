@@ -41,14 +41,21 @@ cd ../build/
 # FILEPATH='/home/bear/workspace/single-gnn/data/partition/UK/output.txt'
 # DATANAME='UK'
 
-FILEPATH='/home/bear/workspace/single-gnn/data/partition/PA/output.txt'
-DATANAME='PA'
+# FILEPATH='/home/bear/workspace/single-gnn/data/partition/PA/output.txt'
+# DATANAME='PA'
 
-PARTITION=4
-IFSAVE=false
-SAVENAME="hdrf_${DATANAME}_${PARTITION}"
 
-./twophasepartitioner -filename /home/bear/workspace/single-gnn/data/partition/PA/output.txt -p 4 -use_hdrf -lambda 1.1 -shuffle false
+# IFSAVE=false
+# SAVENAME="hdrf_${DATANAME}_${PARTITION}"
 
-# ./twophasepartitioner -filename ${FILEPATH} -p ${PARTITION} -shuffle \
-#     false -memsize 100 -prepartitioner_type streamcom -balance_ratio 1.05 -str_iters 2
+PARTITION=32
+FILEPATH="/home/bear/TrillionG/output/graph.txt"
+./twophasepartitioner -filename ${FILEPATH} -p ${PARTITION} -use_hdrf -lambda 1.1 -shuffle false
+
+interval=5
+memory_usage_file="../script/mem.log"
+
+lastPid=$!
+logMsg="./twophasepartitioner -filename ${FILEPATH} -p ${PARTITION} -use_hdrf -lambda 1.1 -shuffle false"
+echo $logMsg >> $memory_usage_file
+monitor_memory $lastPid $memory_usage_file $interval

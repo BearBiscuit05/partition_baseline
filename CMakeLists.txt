@@ -21,8 +21,10 @@ add_executable(twophasepartitioner 2ps/main.cpp 2ps/globals.cpp 2ps/twophasepart
 add_executable(modularity modularity_calculator/main.cpp)
 add_executable(dbh dbh/main.cpp dbh/dbh.cpp dbh/dbh.hpp dbh/globals.cpp dbh/globals.hpp dbh/stats.cpp dbh/stats.hpp)
 add_executable(random random/main.cpp random/random.cpp random/random.hpp random/globals.cpp random/globals.hpp random/stats.cpp random/stats.hpp)
+add_executable(greedy greedy/main.cpp greedy/greedy.cpp greedy/greedy.hpp greedy/globals.cpp greedy/globals.hpp greedy/stats.cpp greedy/stats.hpp greedy/cuckoo_map_pow2.hpp)
 
 target_link_libraries(twophasepartitioner converter glog gflags)
 target_link_libraries(modularity gflags)
 target_link_libraries(dbh converter glog gflags)
 target_link_libraries(random converter glog gflags)
+target_link_libraries(greedy converter glog gflags)

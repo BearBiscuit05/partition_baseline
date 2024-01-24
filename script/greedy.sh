@@ -13,23 +13,21 @@ cd ../build/
 # FILEPATH='/home/bear/workspace/single-gnn/data/partition/PA/output.txt'
 # DATANAME='PA'
 
-FILEPATH='/home/bear/workspace/single-gnn/data/raid/reddit/output.txt'
-DATANAME='RD'
-
 # FILEPATH='/home/bear/workspace/single-gnn/data/raid/reddit/output.txt'
 # DATANAME='RD'
 
-FILEPATH='/home/bear/TrillionG/10B_output/graph.bin'
-PARTITION=4
+# FILEPATH='/home/bear/TrillionG/3B_output/graph.txt'
+PARTITION=64
 # IFSAVE=false
 # SAVENAME="random_${DATANAME}_${PARTITION}"
-interval=3
-mem_log=""
+
+
 
 monitor_memory() {
-    echo "=============================================" >> $mem_log
     local python_pid="$1"
     local mem_log="$2"
+    echo "=============================================" >> $mem_log
+    
 
     local total_memory_usage_kb=0
     local peak_memory_usage_kb=0
@@ -53,9 +51,22 @@ monitor_memory() {
     fi
     echo "平均内存占用: $average_memory_usage_mb MB" >> $mem_log
     echo "峰值内存占用: $((peak_memory_usage_kb / 1024)) MB" >> $mem_log
+    echo "=============================================" >> $mem_log
 }
 
 
+FILEPATH='/home/bear/TrillionG/10B_output/graph.txt'
+PARTITION=64
+# IFSAVE=false
+# SAVENAME="dbh_${DATANAME}_${PARTITION}"
 
+./greedy -filename ${FILEPATH} -p ${PARTITION} -shuffle false &
 
-./random -filename ${FILEPATH} -p ${PARTITION} -shuffle false
+interval=3
+memory_usage_file="../script/greedy_mem.log"
+
+lastPid=$!
+logMsg="./greedy -filename ${FILEPATH} -p ${PARTITION} -shuffle false"
+echo $logMsg >> $memory_usage_file
+monitor_memory $lastPid $memory_usage_file $interval
+
