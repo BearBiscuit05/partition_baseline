@@ -13,7 +13,7 @@ class Converter
 {
   protected:
     std::string basefilename;
-    vid_t num_vertices;
+    vid_t num_vertices=0;
     size_t num_edges;
     std::vector<vid_t> degrees;
     std::ofstream fout;
@@ -21,13 +21,18 @@ class Converter
 
     vid_t get_vid(vid_t v)
     {
-        auto it = name2vid.find(v);
-        if (it == name2vid.end()) {
-            name2vid[v] = num_vertices;
-            degrees.resize(num_vertices + 1);
-            return num_vertices++;
+        if (v > num_vertices) {
+            num_vertices = v;
         }
-        return name2vid[v];
+        degrees.resize(num_vertices + 1);
+        return v;
+        // auto it = name2vid.find(v);
+        // if (it == name2vid.end()) {
+        //     name2vid[v] = num_vertices;
+        //     degrees.resize(num_vertices + 1);
+        //     return num_vertices++;
+        // }
+        // return name2vid[v];
     }
 
   public:

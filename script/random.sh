@@ -10,8 +10,11 @@ cd ../build/
 # FILEPATH='/home/bear/workspace/single-gnn/data/partition/UK/output.txt'
 # DATANAME='UK'
 
-FILEPATH='/home/bear/workspace/single-gnn/data/partition/PA/output.txt'
-DATANAME='PA'
+# FILEPATH='/home/bear/workspace/single-gnn/data/partition/PA/output.txt'
+# DATANAME='PA'
+
+FILEPATH='/home/bear/workspace/single-gnn/data/raid/reddit/output.txt'
+DATANAME='RD'
 
 PARTITION=4
 IFSAVE=false

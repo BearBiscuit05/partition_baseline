@@ -1,6 +1,6 @@
 #include <algorithm>
 #include <random>
-
+#include <iostream>
 #include "twophasepartitioner.hpp"
 
 void sorted_com_prepartition_forwarder(void* object, std::vector<edge_t> edges);
@@ -11,6 +11,9 @@ DECLARE_bool(write_parts);
 DECLARE_string(parts_filename);
 DECLARE_string(prepartitioner_type);
 DECLARE_bool(use_hdrf);
+
+
+
 TwoPhasePartitioner::TwoPhasePartitioner(Globals& GLOBALS) : globals(GLOBALS)
 {
     edge_load.resize(globals.NUM_PARTITIONS, 0);
@@ -90,12 +93,14 @@ void TwoPhasePartitioner::perform_prepartition_and_partition(std::vector<uint32_
     }
     timer.stop();
     LOG(INFO) << "Runtime for assigning commmunities to partitions " <<" [sec]: " << timer.get_time(); 
-
+    backdoor(communities,com2part);
     LOG(INFO) << "Writing out partitions is enabled? " << FLAGS_write_parts << std::endl;
     if (FLAGS_write_parts) {
-        for (int i = 0 ; i < globals.NUM_PARTITIONS ; i++) {
+        part_files.resize(globals.NUM_PARTITIONS);
+        for (int i = 0 ; i < globals.NUM_PARTITIONS ; i++) {      
             std::string fileName = FLAGS_parts_filename + "_" + std::to_string(i) + ".bin";
             part_files[i].open(fileName,std::ios::out | std::ios::binary);
+
         }
         //part_file.open(FLAGS_parts_filename + ".bin",std::ios::out | std::ios::binary);
     }
@@ -423,4 +428,18 @@ void linear_forwarder(void* object, std::vector<edge_t> edges)
 void hdrf_forwarder(void* object, std::vector<edge_t> edges)
 {
     static_cast<TwoPhasePartitioner*>(object)->do_hdrf(edges);
+}
+
+
+void TwoPhasePartitioner::backdoor(std::vector<uint32_t> coms,std::vector<uint32_t> com2part) {
+    // get id in part
+    // id ->  com id
+    // com -> partid
+    std::ofstream outputFile("partId.bin", std::ios::binary);
+    for(int id = 0 ; id < globals.NUM_VERTICES; id++) {
+        int comid = coms[id];
+        int partid = com2part[comid];
+        outputFile.write(reinterpret_cast<char*>(&partid), sizeof(partid));
+    }
+    outputFile.close();
 }
