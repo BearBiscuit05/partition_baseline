@@ -30,10 +30,6 @@ endif()
 set(EXECUTABLE_OUTPUT_PATH "./bin/")
 
 
-# add_executable(main main.cpp cm_sketch.cpp         
-#                 globalConfig.cpp StreamCluster.cpp
-#                 ClusterGameTask.cpp Partitioner.cpp readGraph.cpp)
-
 file(GLOB SOURCES "*.cpp")
 add_executable(main ${SOURCES})
 

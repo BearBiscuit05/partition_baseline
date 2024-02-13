@@ -15,6 +15,11 @@ GlobalConfig::GlobalConfig(std::string filepath) {
 
         std::string key = line.substr(0, delimiterPos);
         std::string value = line.substr(delimiterPos + 1);
+        
+        if (!value.empty() && value.back() == '\r') {
+            value.pop_back(); 
+        }
+
         std::cout << key  << " = " << value << std::endl;
         properties[key] = value;
     }

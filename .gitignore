@@ -3,8 +3,3 @@
 **/.vscode
 **/**.log
 **/**.properties
-# ours/**.cpp
-# ours/**.h
-# ours/**.sh
-# ours/**.h
-# ours/**.txt

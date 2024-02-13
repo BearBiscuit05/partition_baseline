@@ -16,13 +16,10 @@ void printParaInfo(GlobalConfig& configInfo) {
     std::cout << "MaxClusterVolume: " << configInfo.getMaxClusterVolume() << std::endl;
 }
 
-using namespace std;
-std::string inputGraphPath = "/raid/dataset/Graph/com-lj.bin";
-
 int main() {
     omp_set_num_threads(THREADNUM);
     GlobalConfig configInfo("./project.properties");
-    configInfo.inputGraphPath = inputGraphPath;
+    configInfo.inputGraphPath = configInfo.inputGraphPath;
 
 
     auto start = std::chrono::high_resolution_clock::now();
