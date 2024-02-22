@@ -1,47 +1,29 @@
 #include "Partitioner.h"
 
 
-void printParaInfo(GlobalConfig& configInfo) {
-    std::cout << "input graph: " << configInfo.inputGraphPath << std::endl;
-    std::cout << "vCount: " << configInfo.vCount << std::endl;
-    std::cout << "eCount: " << configInfo.eCount << std::endl;
-    std::cout << "averageDegree: " << configInfo.getAverageDegree() << std::endl;
-    std::cout << "partitionNum: " << configInfo.partitionNum << std::endl;
-    std::cout << "alpha: " << configInfo.alpha << std::endl;
-    std::cout << "beta: " << configInfo.beta << std::endl;
-    std::cout << "k: " << configInfo.k << std::endl;
-    std::cout << "batchSize: " << configInfo.batchSize << std::endl;
-    std::cout << "partitionNum: " << configInfo.partitionNum << std::endl;
-    std::cout << "threads: " << configInfo.threads << std::endl;
-    std::cout << "MaxClusterVolume: " << configInfo.getMaxClusterVolume() << std::endl;
-}
+// init global config set
+GlobalConfig config("./project.properties");
 
 int main() {
     omp_set_num_threads(THREADNUM);
-    GlobalConfig configInfo("./project.properties");
-    configInfo.inputGraphPath = configInfo.inputGraphPath;
-
-
-    auto start = std::chrono::high_resolution_clock::now();
-    int threads = 4;
-    std::vector<std::thread> threadPool;
-    std::vector<std::future<void>> futureList;
+    //GlobalConfig configInfo("./project.properties");
+    using highclock = std::chrono::high_resolution_clock;
 
     // -------------------cluster-------------------------
     std::cout << "[===start S5V cluster===]" << std::endl;
-    auto startTime = std::chrono::high_resolution_clock::now();
-    auto ClusterStartTime = std::chrono::high_resolution_clock::now();
-    StreamCluster streamCluster(configInfo);
-    auto InitialClusteringTime = std::chrono::high_resolution_clock::now();
+    auto startTime = highclock::now();
+    auto ClusterStartTime = highclock::now();
+    StreamCluster streamCluster;
+    auto InitialClusteringTime = highclock::now();
     
     streamCluster.startStreamCluster();
     std::cout << "Big clustersize:" << streamCluster.getClusterList_B().size() << std::endl;
     std::cout << "Small clustersize:" << streamCluster.getClusterList_S().size()<< std::endl;
-    auto ClusteringTime = std::chrono::high_resolution_clock::now();
+    auto ClusteringTime = highclock::now();
     std::cout << "End Clustering" << std::endl;
     streamCluster.computeHybridInfo();
-    std::cout << "partitioner config:" << configInfo.batchSize << std::endl;
-    auto ClusterEndTime = std::chrono::high_resolution_clock::now();
+    std::cout << "partitioner config:" << config.batchSize << std::endl;
+    auto ClusterEndTime = highclock::now();
     
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(InitialClusteringTime - ClusterStartTime);
     std::cout << "Initial Clustering time: " << duration.count() << " ms" << std::endl;
@@ -53,15 +35,15 @@ int main() {
     std::cout << "-----> ALL Cluster Time: " << duration.count() << " ms" << std::endl;
     
     // -------------------partition-----------------------
-    auto gameStartTime = std::chrono::high_resolution_clock::now();
+    auto gameStartTime = highclock::now();
     std::cout << "[===start S5V Game===]" << std::endl;
-    Partitioner partitioner(streamCluster, configInfo);
-    auto PartitionerInitEndTime = std::chrono::high_resolution_clock::now();
+    Partitioner partitioner(streamCluster);
+    auto PartitionerInitEndTime = highclock::now();
     duration = std::chrono::duration_cast<std::chrono::milliseconds>(PartitionerInitEndTime - gameStartTime);
     std::cout << "Partitioner init time: " << duration.count() << " ms" << std::endl;
     
     partitioner.startStackelbergGame();
-    auto gameEndTime = std::chrono::high_resolution_clock::now();
+    auto gameEndTime = highclock::now();
     duration = std::chrono::duration_cast<std::chrono::milliseconds>(gameEndTime - gameStartTime);
     std::cout << "-----> S5V game time: " << duration.count() << " ms" << std::endl;
     
@@ -80,14 +62,14 @@ int main() {
     std::cout << "Total inner game round:" << gameRoundCnt_inner << std::endl;
     // -------------------perform-----------------------
     std::cout << "[===start S5V perform===]" << std::endl;
-    auto performStepStartTime = std::chrono::high_resolution_clock::now();
+    auto performStepStartTime = highclock::now();
     partitioner.performStep();
-    auto performStepEndTime = std::chrono::high_resolution_clock::now();
+    auto performStepEndTime = highclock::now();
 
     duration = std::chrono::duration_cast<std::chrono::milliseconds>(performStepEndTime - performStepStartTime);
     std::cout << "-----> S5V perform time:: " << duration.count() << " ms" << std::endl;
 
-    auto endTime = std::chrono::high_resolution_clock::now();
+    auto endTime = highclock::now();
     
     // -------------------output-----------------------
     double rf = partitioner.getReplicateFactor();
@@ -96,7 +78,7 @@ int main() {
 
     
     std::cout << "[===S5V-data===]" << std::endl;
-    std::cout << "Partition num:" << configInfo.partitionNum << std::endl;
+    std::cout << "Partition num:" << config.partitionNum << std::endl;
     duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
     std::cout << "Partition time: " << duration.count() << " ms" << std::endl;
     std::cout << "Relative balance load:" << lb << std::endl;

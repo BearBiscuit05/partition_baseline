@@ -12,9 +12,8 @@ public:
     std::vector<int> partitionLoad;
     std::vector<std::vector<char>> v2p; 
     std::vector<int> clusterPartition;
-    GlobalConfig config;
     Partitioner();
-    Partitioner(StreamCluster& streamCluster,GlobalConfig config);
+    Partitioner(StreamCluster& streamCluster);
     void performStep();
     double getReplicateFactor();
     double getLoadBalance();

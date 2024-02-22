@@ -30,9 +30,7 @@ public:
     int maxVolume_B;
     int maxVolume_S;
     std::string graphType;
-    GlobalConfig config;
     StreamCluster();
-    StreamCluster(GlobalConfig& config);
     void startStreamCluster();
     void startStreamCluster_MAP();
     void computeHybridInfo();

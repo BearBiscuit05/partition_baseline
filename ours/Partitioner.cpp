@@ -3,8 +3,8 @@
 
 Partitioner::Partitioner() {}
 
-Partitioner::Partitioner(StreamCluster& streamCluster, GlobalConfig config)
-    : streamCluster(&streamCluster), config(config) {
+Partitioner::Partitioner(StreamCluster& streamCluster)
+    : streamCluster(&streamCluster){
     this->gameRoundCnt_hybrid = std::vector<int>(THREADNUM, 0);
     this->gameRoundCnt_inner = std::vector<int>(THREADNUM, 0);
     partitionLoad.resize(config.partitionNum);

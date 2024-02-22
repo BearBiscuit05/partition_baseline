@@ -3,10 +3,10 @@
 #include <algorithm>
 #include <fstream>
 
-StreamCluster::StreamCluster() :c(0.1, 0.01) {}
+// StreamCluster::StreamCluster() :c(0.1, 0.01) {}
 
-StreamCluster::StreamCluster(GlobalConfig& config) 
-    : config(config),c(0.1, 0.01) {
+StreamCluster::StreamCluster() 
+    : c(0.1, 0.01) {
     this->cluster_B.resize(size_t(config.vCount),-1);
     this->cluster_S.resize(size_t(config.vCount),-1);
     this->volume_B.resize(size_t(config.vCount),0);
@@ -231,7 +231,7 @@ void StreamCluster::startStreamCluster_MAP() {
             clusterList_S.push_back(i + config.vCount);
     }
     volume_S.clear();  
-    this->config.clusterBSize = config.vCount;
+    config.clusterBSize = config.vCount;
 }
 
 void StreamCluster::mergeMap(std::vector<std::unordered_map<std::string , int>>& maplist,int& cachePtr) {
@@ -242,11 +242,11 @@ void StreamCluster::mergeMap(std::vector<std::unordered_map<std::string , int>>&
         if(flag == 0) {
             maplist[tid][std::to_string(this->cluster_B[this->cacheData[i].src]) + "," + std::to_string(this->cluster_B[this->cacheData[i].dst])] += 1;
         } else if (flag == 1) {
-            maplist[tid][std::to_string(this->cluster_S[this->cacheData[i].src] + this->config.vCount) + "," + std::to_string(this->cluster_S[this->cacheData[i].dst] + this->config.vCount)] += 1;
+            maplist[tid][std::to_string(this->cluster_S[this->cacheData[i].src] + config.vCount) + "," + std::to_string(this->cluster_S[this->cacheData[i].dst] + config.vCount)] += 1;
         } else if (flag == 2) {
-            maplist[tid][std::to_string(this->cluster_S[this->cacheData[i].src] + this->config.vCount) + "," + std::to_string(this->cluster_B[this->cacheData[i].dst])] += 1;
+            maplist[tid][std::to_string(this->cluster_S[this->cacheData[i].src] + config.vCount) + "," + std::to_string(this->cluster_B[this->cacheData[i].dst])] += 1;
         } else {
-            maplist[tid][std::to_string(this->cluster_B[this->cacheData[i].src]) + "," + std::to_string(this->cluster_S[cacheData[i].dst] +  this->config.vCount)] += 1;
+            maplist[tid][std::to_string(this->cluster_B[this->cacheData[i].src]) + "," + std::to_string(this->cluster_S[cacheData[i].dst] +  config.vCount)] += 1;
         }
     }
     cachePtr = 0;
@@ -265,37 +265,37 @@ void StreamCluster::computeHybridInfo() {
         int dest = edge.second;
         
         if (!(this->isInB[tgEngine.readPtr/2])) {
-            key = (cluster_S[src] + this->config.vCount) * this->config.vCount + (cluster_S[dest] + this->config.vCount);
+            key = (cluster_S[src] + config.vCount) * config.vCount + (cluster_S[dest] + config.vCount);
             c.update(key, 1);
 
-            key = (cluster_S[dest] + this->config.vCount) * this->config.vCount + (cluster_S[src] + this->config.vCount);
+            key = (cluster_S[dest] + config.vCount) * config.vCount + (cluster_S[src] + config.vCount);
             c.update(key, 1);
             if (cluster_B[src] !=-1) {
                 c2 = cluster_B[dest];
-                c1 = cluster_S[src] + this->config.vCount;
-                key = c1 * this->config.vCount + c2;
+                c1 = cluster_S[src] + config.vCount;
+                key = c1 * config.vCount + c2;
                 c.update(key, 1);
 
 
-                key = c2 * this->config.vCount + c1;
+                key = c2 * config.vCount + c1;
                 c.update(key, 1);
             }
             if (cluster_B[dest] != -1) {
                 c1 = cluster_B[src];
-                c2 = cluster_S[dest] + this->config.vCount;
-                key = c1 * this->config.vCount + c2 ;
+                c2 = cluster_S[dest] + config.vCount;
+                key = c1 * config.vCount + c2 ;
                 c.update(key, 1);
 
-                key = c2 * this->config.vCount + c1 ;
+                key = c2 * config.vCount + c1 ;
                 c.update(key, 1);
             }   
         } else {
             c1 = cluster_B[src];
             c2 = cluster_B[dest];
-            key = c1*this->config.vCount + c2;
+            key = c1*config.vCount + c2;
             this->c.update(key, 1);
 
-            key = c2*this->config.vCount + c1;
+            key = c2*config.vCount + c1;
             this->c.update(key, 1);
         }
     }
@@ -315,7 +315,7 @@ void StreamCluster::calculateDegree() {
 }
 
 int StreamCluster::getEdgeNum(int cluster1, int cluster2) {
-    uint64_t index = cluster1 * this->config.vCount + cluster2;
+    uint64_t index = cluster1 * config.vCount + cluster2;
     return this->c.estimate(index); 
 }
 

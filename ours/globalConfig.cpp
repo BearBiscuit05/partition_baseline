@@ -24,7 +24,6 @@ GlobalConfig::GlobalConfig(std::string filepath) {
         properties[key] = value;
     }
 
-    hashNum = std::stoi(properties["hashNum"]);
     alpha = std::stod(properties["alpha"]);
     beta = std::stod(properties["beta"]);
     tao = std::stod(properties["tao"]);
