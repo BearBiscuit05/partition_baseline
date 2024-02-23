@@ -5,12 +5,11 @@ Partitioner::Partitioner() {}
 
 Partitioner::Partitioner(StreamCluster& streamCluster)
     : streamCluster(&streamCluster){
-    this->gameRoundCnt_hybrid = std::vector<int>(THREADNUM, 0);
-    this->gameRoundCnt_inner = std::vector<int>(THREADNUM, 0);
-    partitionLoad.resize(config.partitionNum);
-    std::cout << config.vCount << std::endl;
-    v2p.resize(config.vCount, std::vector<char>(config.partitionNum));
-    clusterPartition.resize(2*config.vCount, 0);
+    this->gameRoundCnt_hybrid.resize(THREADNUM, 0);
+    this->gameRoundCnt_inner.resize(THREADNUM, 0);
+    this->partitionLoad.resize(config.partitionNum);
+    this->v2p.resize(config.vCount, std::vector<bool>(config.partitionNum));
+    this->clusterPartition.resize(2*config.vCount, 0);
    }
 
 void Partitioner::performStep() {
@@ -24,8 +23,8 @@ void Partitioner::performStep() {
         int src = edge.first;
         int dest = edge.second;
         if (this->streamCluster->isInB[tgEngine.readPtr/2]) {
-            int srcPartition = clusterPartition[streamCluster->cluster_B[src]];
-            int destPartition = clusterPartition[streamCluster->cluster_B[dest]];
+            int srcPartition = clusterPartition[streamCluster->clusterB[src]];
+            int destPartition = clusterPartition[streamCluster->clusterB[dest]];
             int edgePartition = -1;
             if (partitionLoad[srcPartition] > maxLoad && partitionLoad[destPartition] > maxLoad) {
                 for (int i = 0; i < config.partitionNum; i++) {
@@ -47,8 +46,8 @@ void Partitioner::performStep() {
             v2p[src][srcPartition] = 1;
             v2p[dest][destPartition] = 1;
         } else {
-            int srcPartition = clusterPartition[streamCluster->cluster_S[src]+config.vCount];
-            int destPartition = clusterPartition[streamCluster->cluster_S[dest]+config.vCount];
+            int srcPartition = clusterPartition[streamCluster->clusterS[src]+config.vCount];
+            int destPartition = clusterPartition[streamCluster->clusterS[dest]+config.vCount];
             int edgePartition = -1;
             if (partitionLoad[srcPartition] > maxLoad && partitionLoad[destPartition] > maxLoad) {
                 for (int i = config.partitionNum - 1; i >= 0; i--) {

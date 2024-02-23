@@ -3,13 +3,10 @@
 
 #include "common.h"
 class GlobalConfig {
-private:
-    std::unordered_map<std::string, std::string> properties;
-
 public:
+    long long eCount;
     double beta;
     double tao;
-    double eCount;
     double alpha;
     int k;
     int batchSize;

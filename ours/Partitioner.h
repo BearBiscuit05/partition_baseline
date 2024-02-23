@@ -10,7 +10,7 @@ public:
     std::vector<int> gameRoundCnt_hybrid;
     std::vector<int>  gameRoundCnt_inner;
     std::vector<int> partitionLoad;
-    std::vector<std::vector<char>> v2p; 
+    std::vector<std::vector<bool>> v2p; 
     std::vector<int> clusterPartition;
     Partitioner();
     Partitioner(StreamCluster& streamCluster);

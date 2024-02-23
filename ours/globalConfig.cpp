@@ -3,6 +3,7 @@
 GlobalConfig::GlobalConfig(std::string filepath) {
     std::ifstream configFile(filepath);
     std::string line;
+    std::unordered_map<std::string, std::string> properties;
     while (std::getline(configFile, line)) {
         if (line.empty() || line[0] == '#')
             continue;
@@ -31,7 +32,7 @@ GlobalConfig::GlobalConfig(std::string filepath) {
     threads = std::stoi(properties["threads"]);
     partitionNum = std::stoi(properties["partitionNum"]);
     vCount = std::stoi(properties["vCount"]);
-    eCount = std::stod(properties["eCount"]);
+    eCount = std::stoll(properties["eCount"]);
     k = std::stoi(properties["k"]);
     inputGraphPath = properties["inputGraphPath"];
 }
