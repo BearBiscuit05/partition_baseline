@@ -5,13 +5,11 @@
 
 
 ClusterGameTask::ClusterGameTask(StreamCluster& sc,std::vector<int>& clusterPartition)
-    : streamCluster(&sc){
-    int batchSize = config.batchSize;
+    : streamCluster(&sc),roundCnt(0),beta(0.0),beta_B(0.0),beta_S(0.0) {
     this->partitionLoad.resize(config.partitionNum,0);
     this->clusterPartition=&clusterPartition;
     this->cutCostValue = std::unordered_map<int, int>();
-    this->roundCnt = 0;
-    this->newClusterNeighbours = std::vector<int>(2*config.vCount, 0);
+    this->newClusterNeighbours.resize(2*config.vCount, 0);
 }
 
 
@@ -88,13 +86,12 @@ void ClusterGameTask::startGameSingle() {
 void ClusterGameTask::resize_hyper(std::string graphType,int taskIds) {
     auto cluPtrB = streamCluster->getClusterPtrB();
     auto cluPtrS = streamCluster->getClusterPtrS();
-    int batchSize = config.batchSize;
-    int begin = batchSize * taskIds;
-    int end = std::min(batchSize * (taskIds + 1), static_cast<int>(cluPtrB->size()));
+    int begin = config.batchSize * taskIds;
+    int end = std::min(config.batchSize * (taskIds + 1), static_cast<int>(cluPtrB->size()));
     this->cluster_B.assign(cluPtrB->begin() + begin, cluPtrB->begin() + end);
     this->graphType = graphType;
-    begin = batchSize * taskIds;
-    end = std::min(batchSize * (taskIds + 1), static_cast<int>(cluPtrS->size()));
+    begin = config.batchSize * taskIds;
+    end = std::min(config.batchSize * (taskIds + 1), static_cast<int>(cluPtrS->size()));
     this->cluster_S.assign(cluPtrS->begin() + begin, cluPtrS->begin() + end);
     std::fill(this->partitionLoad.begin(), this->partitionLoad.end(), 0);
     this->cutCostValue = std::unordered_map<int, int>();
@@ -104,9 +101,8 @@ void ClusterGameTask::resize_hyper(std::string graphType,int taskIds) {
 void ClusterGameTask::resize(std::string graphType, int taskId) {
     auto cluPtr = (graphType == "B" ? streamCluster->getClusterPtrB() : streamCluster->getClusterPtrS());
     this->graphType = graphType;
-    int batchSize = config.batchSize;
-    int begin = batchSize * taskId;
-    int end = std::min(batchSize * (taskId + 1), static_cast<int>(cluPtr->size()));
+    int begin = config.batchSize * taskId;
+    int end = std::min(config.batchSize * (taskId + 1), static_cast<int>(cluPtr->size()));
     this->cluster.assign(cluPtr->begin() + begin, cluPtr->begin() + end);
     this->cutCostValue = std::unordered_map<int, int>();
     std::fill(this->partitionLoad.begin(), this->partitionLoad.end(), 0);

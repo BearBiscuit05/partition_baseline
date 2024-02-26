@@ -22,7 +22,6 @@ using namespace std;
 // ep -> error 0.01 < ep < 1 (the smaller the better)
 // gamma -> probability for error (the smaller the better) 0 < gamm < 1
 CountMinSketch::CountMinSketch(float ep, float gamm) {
-    std::cout << "cm init..." << std::endl;
     if (!(0.009 <= ep && ep < 1)) {
       cout << "eps must be in this range: [0.01, 1)" << endl;
       exit(EXIT_FAILURE);

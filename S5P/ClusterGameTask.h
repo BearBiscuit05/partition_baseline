@@ -8,10 +8,10 @@ class ClusterGameTask {
 public:
     StreamCluster* streamCluster;
     std::string graphType;
-    int roundCnt = 0;
-    double beta = 0.0;
-    double beta_B = 0.0;
-    double beta_S = 0.0;
+    int roundCnt;
+    double beta;
+    double beta_B;
+    double beta_S;
 
     std::vector<int> cluster;
     std::vector<int> cluster_B;
