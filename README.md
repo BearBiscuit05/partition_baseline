@@ -8,9 +8,7 @@
 + greedy: 从PowerGraph框架中进行剥离
 + random: 实现随机划分，作为运行质量下限和运行时间上限
 + RMGP: 基于点划分进行的划分算法迁移
-+ our: xxxx
-
-ps:暂时未解封，xxxx无详细说明，2024.3月解封，并调整仓库结构
++ s5p: 
 
 项目包含的流式代码如下:
 
@@ -22,7 +20,7 @@ ps:暂时未解封，xxxx无详细说明，2024.3月解封，并调整仓库结�
 
 \* greedy  - Based on the following [publication](https://www.usenix.org/system/files/conference/osdi12/osdi12-final-167.pdf) :Gonzalez J E, Low Y, Gu H, et al. PowerGraph: Distributed Graph-Parallel computation on natural graphs. OSDI 12.
 
-\* random , other , ours
+\* random , other , s5p
 
 ---
 ## 下游测试任务选择
