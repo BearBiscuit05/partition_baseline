@@ -22,8 +22,8 @@ int main() {
     auto InitialClusteringTime = highclock::now();
     
     streamCluster.startStreamCluster();
-    std::cout << "Big clustersize:" << streamCluster.getClusterList_B().size() << std::endl;
-    std::cout << "Small clustersize:" << streamCluster.getClusterList_S().size()<< std::endl;
+    std::cout << "Big clustersize:" << streamCluster.getClusterPtrB()->size() << std::endl;
+    std::cout << "Small clustersize:" << streamCluster.getClusterPtrS()->size()<< std::endl;
     auto ClusteringTime = highclock::now();
     std::cout << "End Clustering" << std::endl;
     streamCluster.computeHybridInfo();
@@ -46,14 +46,13 @@ int main() {
     auto gameEndTime = highclock::now();
     printCostTime(gameEndTime,gameStartTime,"-----> S5V game time: ");
     
-    int gameRoundCnt_hybrid = 0;
-    for(auto & t : partitioner.gameRoundCnt_hybrid) {
-        gameRoundCnt_hybrid  += t;
-    }
-    int gameRoundCnt_inner = 0;
-    for(auto & t : partitioner.gameRoundCnt_inner) {
-        gameRoundCnt_inner  += t;
-    }
+    int gameRoundCnt_hybrid = std::accumulate(
+        partitioner.gameRoundCnt_hybrid.begin(),
+        partitioner.gameRoundCnt_hybrid.end(),0);
+
+    int gameRoundCnt_inner = std::accumulate(
+        partitioner.gameRoundCnt_inner.begin(),
+        partitioner.gameRoundCnt_inner.end(),0);
 
     int roundCnt = gameRoundCnt_hybrid + gameRoundCnt_inner;
     std::cout << "Total game round:" << roundCnt << std::endl;

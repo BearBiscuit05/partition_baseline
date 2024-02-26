@@ -24,8 +24,6 @@ public:
     
     ClusterGameTask() {};
     ClusterGameTask(StreamCluster& sc,std::vector<int>& clusterPartition);
-    ClusterGameTask(std::string graphType, int taskId, StreamCluster& streamCluster);
-    ClusterGameTask(std::string graphType, StreamCluster& streamCluster, int taskIds);
     
     void call();
     void startGameDouble();

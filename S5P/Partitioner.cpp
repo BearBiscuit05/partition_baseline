@@ -13,94 +13,86 @@ Partitioner::Partitioner(StreamCluster& streamCluster)
    }
 
 void Partitioner::performStep() {
+    /*
+        Assign each edge to the corresponding partition
+    */
     double maxLoad = config.eCount / config.partitionNum * config.alpha;
-    std::string inputGraphPath = config.inputGraphPath;
     std::pair<int,int> edge(-1,-1);
-    TGEngine tgEngine(inputGraphPath,config.vCount,config.eCount);
-    int partPtr = 0;
-    std::cout << maxLoad << std::endl;
+    TGEngine tgEngine(config.inputGraphPath,config.vCount,config.eCount);
     while (-1 != tgEngine.readline(edge)) {
         int src = edge.first;
         int dest = edge.second;
+        int srcPart,destPart,edgePart=-1;
         if (this->streamCluster->isInB[tgEngine.readPtr/2]) {
-            int srcPartition = clusterPartition[streamCluster->clusterB[src]];
-            int destPartition = clusterPartition[streamCluster->clusterB[dest]];
-            int edgePartition = -1;
-            if (partitionLoad[srcPartition] > maxLoad && partitionLoad[destPartition] > maxLoad) {
+            srcPart = clusterPartition[streamCluster->clusterB[src]];
+            destPart = clusterPartition[streamCluster->clusterB[dest]];
+            // both exceed then random find one part
+            if (partitionLoad[srcPart] > maxLoad && partitionLoad[destPart] > maxLoad) {
                 for (int i = 0; i < config.partitionNum; i++) {
                     if (partitionLoad[i] <= maxLoad) {
-                        edgePartition = i;
-                        srcPartition = i;
-                        destPartition = i;
+                        edgePart = i;
+                        srcPart = i;
+                        destPart = i;
                         break;
                     }
                 }
-            } else if (partitionLoad[srcPartition] > partitionLoad[destPartition]) {
-                edgePartition = destPartition;
-                srcPartition = destPartition;
+            } else if (partitionLoad[srcPart] > partitionLoad[destPart]) { // set dest
+                edgePart = destPart;
+                srcPart = destPart;
             } else {
-                edgePartition = srcPartition;
-                destPartition = srcPartition;
+                edgePart = srcPart;
+                destPart = srcPart;
             }
-            partitionLoad[edgePartition]++;
-            v2p[src][srcPartition] = 1;
-            v2p[dest][destPartition] = 1;
         } else {
-            int srcPartition = clusterPartition[streamCluster->clusterS[src]+config.vCount];
-            int destPartition = clusterPartition[streamCluster->clusterS[dest]+config.vCount];
-            int edgePartition = -1;
-            if (partitionLoad[srcPartition] > maxLoad && partitionLoad[destPartition] > maxLoad) {
+            srcPart = clusterPartition[streamCluster->clusterS[src]+config.vCount];
+            destPart = clusterPartition[streamCluster->clusterS[dest]+config.vCount];
+            if (partitionLoad[srcPart] > maxLoad && partitionLoad[destPart] > maxLoad) {
                 for (int i = config.partitionNum - 1; i >= 0; i--) {
                     if (partitionLoad[i] <= maxLoad) {
-                        edgePartition = i;
-                        srcPartition = i;
-                        destPartition = i;
+                        edgePart = i;
+                        srcPart = i;
+                        destPart = i;
                         break;
                     }
                 }
-            } else if (partitionLoad[srcPartition] > partitionLoad[destPartition]) {
-                edgePartition = destPartition;
-                srcPartition = destPartition;
+            } else if (partitionLoad[srcPart] > partitionLoad[destPart]) {
+                edgePart = destPart;
+                srcPart = destPart;
             } else {
-                edgePartition = srcPartition;
-                destPartition = srcPartition;
-            }
-
-            partitionLoad[edgePartition]++;
-            v2p[src][srcPartition] = 1;
-            v2p[dest][destPartition] = 1;            
+                edgePart = srcPart;
+                destPart = srcPart;
+            }      
         }
+        partitionLoad[edgePart]++;
+        v2p[src][srcPart] = 1;
+        v2p[dest][destPart] = 1;
     }
 }
 
 double Partitioner::getReplicateFactor() {
-    int replicateTotal = 0;
+    double replicateTotal = 0;
     for (int i = 0; i < config.vCount; i++) {
         for (int j = 0; j < config.partitionNum; j++) {
             replicateTotal += v2p[i][j];
         }
     }
-    return static_cast<double>(replicateTotal) / config.vCount;
+    return replicateTotal / config.vCount;
 }
 
 double Partitioner::getLoadBalance() {
-    int maxLoad = 0;
-    for (int i = 0; i < config.partitionNum; i++) {
-        if (maxLoad < partitionLoad[i]) {
-            maxLoad = partitionLoad[i];
-        }
-    }
+    auto maxIter = std::max_element(partitionLoad.begin(), partitionLoad.end());
+    int maxLoad = *maxIter; 
     return static_cast<double>(config.partitionNum) / config.eCount * maxLoad;
 }
 
 void Partitioner::startStackelbergGame() {
     int batchSize = config.batchSize;
-    std::vector<int> clusterList_B = streamCluster->getClusterList_B();
-    std::vector<int> clusterList_S = streamCluster->getClusterList_S();
-    int taskNum_B = (clusterList_B.size() + batchSize - 1) / batchSize;
-    int taskNum_S = (clusterList_S.size() + batchSize - 1) / batchSize;
-    int minTaskNUM = std::min(taskNum_B, taskNum_S);
-    int leftTaskNUM = std::abs(taskNum_B - taskNum_S);
+    auto clusterList_B = streamCluster->getClusterPtrB();
+    auto clusterList_S = streamCluster->getClusterPtrS();
+    int taskNumB = (clusterList_B->size() + batchSize - 1) / batchSize;
+    int taskNumS = (clusterList_S->size() + batchSize - 1) / batchSize;
+    int minTaskNUM = std::min(taskNumB, taskNumS);
+    int leftTaskNUM = std::abs(taskNumB - taskNumS);
     std::vector<ClusterGameTask*> cgt_list(THREADNUM);
     for (int i = 0 ; i < THREADNUM ; i++) {
         ClusterGameTask* cgt = new ClusterGameTask((*streamCluster),this->clusterPartition);
@@ -116,7 +108,7 @@ void Partitioner::startStackelbergGame() {
         this->gameRoundCnt_hybrid[ompid] += cgt_list[ompid]->roundCnt;
     }
 
-    if (taskNum_B > taskNum_S) {
+    if (taskNumB > taskNumS) {
 #pragma omp parallel for  
         for (int i = 0 ; i < leftTaskNUM; ++i) {
             int ompid = omp_get_thread_num();

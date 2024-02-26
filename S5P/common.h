@@ -3,7 +3,6 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
-#include <list>
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -14,17 +13,19 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
+#include <numeric>
 #include <cstdlib>
 #include <cstring>
 #include <utility>
 #include <sys/mman.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
 #include <cstdint>
-#include <sys/types.h>
 #include <fcntl.h>
 #include <stdexcept>
 #include <limits>
+#include <memory>
 #include "omp.h"
 
 

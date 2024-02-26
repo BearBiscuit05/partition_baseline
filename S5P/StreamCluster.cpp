@@ -17,6 +17,7 @@ StreamCluster::StreamCluster()
     calculateDegree();
 }
 
+
 void StreamCluster::startStreamCluster() {
     double averageDegree = config.getAverageDegree();
     int clusterID_B = 0;
@@ -47,10 +48,8 @@ void StreamCluster::startStreamCluster() {
             }
             
 
-            uint32_t& vol_src = volumeB[com_src];
-            uint32_t& vol_dest = volumeB[com_dest];
-
-
+            int& vol_src = volumeB[com_src];
+            int& vol_dest = volumeB[com_dest];
             auto real_vol_src = vol_src - degree[src];
             auto real_vol_dest = vol_dest - degree[dest];
 
@@ -85,31 +84,34 @@ void StreamCluster::startStreamCluster() {
         }
     }
 
-    std::vector<std::pair<uint64_t, uint32_t>> sorted_communities;
-    for (size_t i = 0; i < volumeB.size(); ++i)
+    createCluList(volumeB,clusterList_B);
+    createCluList(volumeS,clusterList_S);
+
+    // bind share ptr 
+    cluPtrB = std::make_shared<std::vector<int>>(clusterList_B);
+    cluPtrS = std::make_shared<std::vector<int>>(clusterList_S);
+}
+
+void StreamCluster::createCluList(std::vector<int>& volume,std::vector<int>& cluList) {
+    /*
+        get the sorted cluster id array by cluster size
+    */
+    std::vector<std::pair<int64_t, int>> sorted_communities;
+    for (size_t i = 0; i < volume.size(); ++i)
     {
-        if (volumeB[i] != 0)
-            sorted_communities.emplace_back(volumeB[i], i);
+        if (volume[i] != 0)
+            sorted_communities.emplace_back(volume[i], i);
     }
-    volumeB.clear();  
+    volume.clear();  
     std::sort(sorted_communities.rbegin(), sorted_communities.rend()); // sort in descending order
 
     for (int i = 0; i < sorted_communities.size(); ++i) {
-        clusterList_B.push_back(sorted_communities[i].second);
+        cluList.emplace_back(sorted_communities[i].second);
     }
-    sorted_communities.clear();
-    for (size_t i = 0; i < volumeS.size(); ++i)
-    {
-        if (volumeS[i] != 0)
-            sorted_communities.emplace_back(volumeS[i], i);
-    }
-    volumeS.clear(); 
-    std::sort(sorted_communities.rbegin(), sorted_communities.rend()); // sort in descending order
-    for (int i = 0; i < sorted_communities.size(); ++i) {
-        clusterList_S.push_back(sorted_communities[i].second + config.vCount);
-    }
-    sorted_communities.clear();
 }
+
+
+
 
 void StreamCluster::computeHybridInfo() {
     TGEngine tgEngine(config.inputGraphPath,config.vCount,config.eCount); 
@@ -174,13 +176,12 @@ int StreamCluster::getEdgeNum(int cluster1, int cluster2) {
 }
 
 
-// TODO:
-std::vector<int> StreamCluster::getClusterList_B() {
-    return clusterList_B;
+std::shared_ptr<std::vector<int>> StreamCluster::getClusterPtrB() {
+    return cluPtrB;
 }
 
-std::vector<int> StreamCluster::getClusterList_S() {
-    return clusterList_S;
+std::shared_ptr<std::vector<int>> StreamCluster::getClusterPtrS() {
+    return cluPtrS;
 }
 
 
