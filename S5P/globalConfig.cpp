@@ -29,11 +29,9 @@ GlobalConfig::GlobalConfig(std::string filepath) {
     beta = std::stod(properties["beta"]);
     tao = std::stod(properties["tao"]);
     batchSize = std::stoi(properties["batchSize"]);
-    threads = std::stoi(properties["threads"]);
     partitionNum = std::stoi(properties["partitionNum"]);
     vCount = std::stoi(properties["vCount"]);
     eCount = std::stoll(properties["eCount"]);
-    k = std::stoi(properties["k"]);
     inputGraphPath = properties["inputGraphPath"];
 }
 
