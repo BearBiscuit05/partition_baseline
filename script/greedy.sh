@@ -17,10 +17,9 @@ cd ../build/
 # DATANAME='RD'
 
 # FILEPATH='/home/bear/TrillionG/3B_output/graph.txt'
-PARTITION=64
+
 # IFSAVE=false
 # SAVENAME="random_${DATANAME}_${PARTITION}"
-
 
 
 monitor_memory() {
@@ -55,18 +54,43 @@ monitor_memory() {
 }
 
 
-FILEPATH='/home/bear/TrillionG/10B_output/graph.txt'
-PARTITION=64
+
+
+# FILEPATH='/home/bear/TrillionG/10B_output/graph.txt'
+# PARTITION=64
 # IFSAVE=false
 # SAVENAME="dbh_${DATANAME}_${PARTITION}"
 
-./greedy -filename ${FILEPATH} -p ${PARTITION} -shuffle false &
+p_values=(64)
+FILEPATH='/home/bear/TrillionG/0.57_output/graph.txt'
+memory_usage_file="../script/greedy_mem_11_29.log"
+interval=10
+for p in "${p_values[@]}"; do
+    ./greedy -filename ${FILEPATH} -p ${p} -shuffle false &
+    lastPid=$!
+    logMsg="./greedy -filename ${FILEPATH} -p ${p} -shuffle false"
+    echo $logMsg >> $memory_usage_file
+    monitor_memory $lastPid $memory_usage_file $interval
+done
 
-interval=3
-memory_usage_file="../script/greedy_mem.log"
 
-lastPid=$!
-logMsg="./greedy -filename ${FILEPATH} -p ${PARTITION} -shuffle false"
-echo $logMsg >> $memory_usage_file
-monitor_memory $lastPid $memory_usage_file $interval
+FILEPATH='/home/bear/TrillionG/0.63_output/graph.txt'
+p_values=(64)
+memory_usage_file="../script/greedy_mem_11_29.log"
+interval=10
+for p in "${p_values[@]}"; do
+    ./greedy -filename ${FILEPATH} -p ${p} -shuffle false &
+    lastPid=$!
+    logMsg="./greedy -filename ${FILEPATH} -p ${p} -shuffle false"
+    echo $logMsg >> $memory_usage_file
+    monitor_memory $lastPid $memory_usage_file $interval
+done
+
+
+
+
+
+
+
+
 

@@ -59,6 +59,7 @@ int main(int argc, char *argv[])
     Globals globals(fin, FLAGS_filename, FLAGS_p, FLAGS_prepartitioner_type, FLAGS_lambda, FLAGS_cluster_quality_eval);
 
     // init partitioner
+
     TwoPhasePartitioner hdrf(globals);
 
     // start partitioner
@@ -75,14 +76,12 @@ void start_partitioning(Globals &globals, TwoPhasePartitioner &partitioner, std:
 {
     Timer partitioner_timer;
     partitioner_timer.start();
-
     // check if a user set any prepartitioner
     if (!FLAGS_prepartitioner_type.empty())
     {
         std::vector<uint32_t> communities;
         std::vector<uint64_t> volumes;
         std::vector<double> quality_scores;
-
         globals.calculate_degrees();
         if (FLAGS_prepartitioner_type == "streamcom")
         {
@@ -100,7 +99,6 @@ void start_partitioning(Globals &globals, TwoPhasePartitioner &partitioner, std:
             LOG(ERROR) << "Only str is supported as a prepartitioner";
             exit(-1);
         }
-
         if (FLAGS_print_coms)
         {
             std::ofstream com_file;

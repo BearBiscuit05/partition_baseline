@@ -22,9 +22,6 @@ TwoPhasePartitioner::TwoPhasePartitioner(Globals& GLOBALS) : globals(GLOBALS)
     partition_volume.resize(globals.NUM_PARTITIONS, 0);
     com2part.resize(globals.NUM_VERTICES + 1, 0);
 
-    // since 2PS has a hard-bound for partition size and pre-partitioner allocates the certain part of the
-    // edges based on "perfect partitioning logic", we don't need min_load to play a role on the partition score 
-    // calculation but to be tie-breaker in case there are more than one the same score partitions. 
     if (!FLAGS_prepartitioner_type.empty()) 
     {
         tie_breaker_min_load = true;
@@ -130,6 +127,7 @@ void TwoPhasePartitioner::perform_prepartition_and_partition(std::vector<uint32_
 void TwoPhasePartitioner::perform_partitioning()
 {
     if (FLAGS_write_parts) {
+        part_files.resize(globals.NUM_PARTITIONS);
         for (int i = 0 ; i < globals.NUM_PARTITIONS ; i++) {
             std::string fileName = FLAGS_parts_filename + "_" + std::to_string(i) + ".bin";
             part_files[i].open(fileName,std::ios::out | std::ios::binary);

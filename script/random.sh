@@ -1,35 +1,10 @@
 #!/bin/bash
 
-cd ../build/
-# FILEPATH='/home/bear/workspace/single-gnn/data/partition/TW/output.txt'
-# DATANAME='TW'
-
-# FILEPATH='/home/bear/workspace/single-gnn/data/partition/FR/output.txt'
-# DATANAME='FR'
-
-# FILEPATH='/home/bear/workspace/single-gnn/data/partition/UK/output.txt'
-# DATANAME='UK'
-
-# FILEPATH='/home/bear/workspace/single-gnn/data/partition/PA/output.txt'
-# DATANAME='PA'
-
-FILEPATH='/home/bear/workspace/single-gnn/data/raid/reddit/output.txt'
-DATANAME='RD'
-
-# FILEPATH='/home/bear/workspace/single-gnn/data/raid/reddit/output.txt'
-# DATANAME='RD'
-
-FILEPATH='/home/bear/TrillionG/10B_output/graph.bin'
-PARTITION=4
-# IFSAVE=false
-# SAVENAME="random_${DATANAME}_${PARTITION}"
-interval=3
-mem_log=""
-
+memory_usage_file="/home/bear/workspace/partition_baseline/log/memory_usage.txt"
+interval=1 
 monitor_memory() {
-    echo "=============================================" >> $mem_log
+    echo "=============================================" >> $memory_usage_file
     local python_pid="$1"
-    local mem_log="$2"
 
     local total_memory_usage_kb=0
     local peak_memory_usage_kb=0
@@ -51,11 +26,41 @@ monitor_memory() {
     else
         local average_memory_usage_mb=0
     fi
-    echo "平均内存占用: $average_memory_usage_mb MB" >> $mem_log
-    echo "峰值内存占用: $((peak_memory_usage_kb / 1024)) MB" >> $mem_log
+    echo "平均内存占用: $average_memory_usage_mb MB" >> $memory_usage_file
+    echo "峰值内存占用: $((peak_memory_usage_kb / 1024)) MB" >> $memory_usage_file
+    echo "=============================================" >> $memory_usage_file
 }
 
 
+cd ../build/
+
+# 定义文件路径和分区数的关联数组
+declare -A FILE_PARTITION=(
+    # ['/raid/bear/tmp/RD_graph.txt']=4
+    # ['/raid/bear/tmp/PD_graph.txt']=8
+    # ['/raid/bear/tmp/PA_graph.txt']=4
+    # ['/raid/bear/tmp/FR_graph.txt']=8
+    # ['/raid/bear/tmp/WB_graph.txt']=8
+     ['/raid/bear/tmp/UK_graph.txt']=4
+)
+# 设置其他变量
+IFSAVE=true
+SAVENAME_BASE="/raid/bear/tmp/random_partition/"
+
+# 循环遍历关联数组并执行命令
+for FILEPATH in "${!FILE_PARTITION[@]}"; do
+    PARTITION=${FILE_PARTITION[$FILEPATH]}
+    SAVENAME="${SAVENAME_BASE}$(basename ${FILEPATH%.*})"
+
+    echo "Processing file: ${FILEPATH}"
+    echo "Partition: ${PARTITION}"
+    echo "Save name: ${SAVENAME}"
+
+    # # 执行命令
+    ./random -filename ${FILEPATH} -p ${PARTITION} -shuffle false -write_parts true -parts_filename ${SAVENAME} &
+    
+    lastPid=$!
+    monitor_memory $lastPid
+done
 
 
-./random -filename ${FILEPATH} -p ${PARTITION} -shuffle false

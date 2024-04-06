@@ -1,10 +1,10 @@
 #!/bin/bash
 
+memory_usage_file="/home/bear/workspace/partition_baseline/log/memory_usage.txt"
+interval=1 
 monitor_memory() {
     echo "=============================================" >> $memory_usage_file
     local python_pid="$1"
-    local memory_usage_file="$2"
-    local interval="$3"
 
     local total_memory_usage_kb=0
     local peak_memory_usage_kb=0
@@ -33,24 +33,35 @@ monitor_memory() {
 
 
 cd ../build/
-FILEPATH='/home/bear/workspace/single-gnn/data/partition/TW/output.txt'
-DATANAME='TW'
 
-# FILEPATH='/home/bear/workspace/single-gnn/data/partition/FR/output.txt'
-# DATANAME='FR'
+# 定义文件路径和分区数的关联数组
+declare -A FILE_PARTITION=(
+    # ['/raid/bear/tmp/RD_graph.txt']=4
+    # ['/raid/bear/tmp/PD_graph.txt']=8
+    # ['/raid/bear/tmp/PA_graph.txt']=4
+    # ['/raid/bear/tmp/FR_graph.txt']=8
+    # ['/raid/bear/tmp/WB_graph.txt']=8
+     ['/raid/bear/tmp/UK_graph.txt']=4
+)
 
-# FILEPATH='/home/bear/workspace/single-gnn/data/partition/UK/output.txt'
-# DATANAME='UK'
-
-# FILEPATH='/home/bear/workspace/single-gnn/data/partition/PA/output.txt'
-# DATANAME='PA'
-
-# FILEPATH='/home/bear/workspace/single-gnn/data/raid/reddit/output.txt'
-# DATANAME='RD'
-PARTITION=4
+# 设置其他变量
 IFSAVE=true
-SAVENAME="/home/bear/workspace/single-gnn/data/partition/RD"
+SAVENAME_BASE="/raid/bear/tmp/2ps_partition/"
 
-echo ${SAVENAME}
-./twophasepartitioner -filename ${FILEPATH} -p ${PARTITION} -shuffle \
-    false -memsize 100 -prepartitioner_type streamcom -balance_ratio 1.05 -str_iters 2 -write_parts true -parts_filename ${SAVENAME}
+# 循环遍历关联数组并执行命令
+for FILEPATH in "${!FILE_PARTITION[@]}"; do
+    PARTITION=${FILE_PARTITION[$FILEPATH]}
+    SAVENAME="${SAVENAME_BASE}$(basename ${FILEPATH%.*})"
+
+    echo "Processing file: ${FILEPATH}"
+    echo "Partition: ${PARTITION}"
+    echo "Save name: ${SAVENAME}"
+
+    # # 执行命令
+    ./twophasepartitioner -filename ${FILEPATH} -p ${PARTITION} -shuffle \
+        false -memsize 100 -prepartitioner_type streamcom -balance_ratio 1.05 -str_iters 2 \
+        -write_parts true -parts_filename ${SAVENAME} &
+    
+    lastPid=$!
+    monitor_memory $lastPid
+done

@@ -1,10 +1,10 @@
 #!/bin/bash
 
+memory_usage_file="/home/bear/workspace/partition_baseline/log/memory_usage.txt"
+interval=1 
 monitor_memory() {
     echo "=============================================" >> $memory_usage_file
     local python_pid="$1"
-    local memory_usage_file="$2"
-    local interval="$3"
 
     local total_memory_usage_kb=0
     local peak_memory_usage_kb=0
@@ -28,34 +28,41 @@ monitor_memory() {
     fi
     echo "平均内存占用: $average_memory_usage_mb MB" >> $memory_usage_file
     echo "峰值内存占用: $((peak_memory_usage_kb / 1024)) MB" >> $memory_usage_file
+    echo "=============================================" >> $memory_usage_file
 }
 
 
 cd ../build/
-# FILEPATH='/home/bear/workspace/single-gnn/data/partition/TW/output.txt'
-# DATANAME='TW'
 
-# FILEPATH='/home/bear/workspace/single-gnn/data/partition/FR/output.txt'
-# DATANAME='FR'
+# 定义文件路径和分区数的关联数组
+declare -A FILE_PARTITION=(
+    ['/raid/bear/tmp/RD_graph.txt']=4
+    ['/raid/bear/tmp/PA_graph.txt']=8
+    ['/raid/bear/tmp/PD_graph.txt']=4
+    ['/raid/bear/tmp/FR_graph.txt']=8
+    ['/raid/bear/tmp/WB_graph.txt']=8
+    ['/raid/bear/tmp/UK_graph.txt']=4
+)
 
-# FILEPATH='/home/bear/workspace/single-gnn/data/partition/UK/output.txt'
-# DATANAME='UK'
+# 设置其他变量
+IFSAVE=true
+SAVENAME_BASE="/raid/bear/tmp/hdrf_partition/"
 
-# FILEPATH='/home/bear/workspace/single-gnn/data/partition/PA/output.txt'
-# DATANAME='PA'
+# 循环遍历关联数组并执行命令
+for FILEPATH in "${!FILE_PARTITION[@]}"; do
+    PARTITION=${FILE_PARTITION[$FILEPATH]}
+    SAVENAME="${SAVENAME_BASE}$(basename ${FILEPATH%.*})"
+
+    echo "Processing file: ${FILEPATH}"
+    echo "Partition: ${PARTITION}"
+    echo "Save name: ${SAVENAME}"
+
+    # # 执行命令
+    ./twophasepartitioner -filename ${FILEPATH} -p ${PARTITION} -use_hdrf -lambda 1.1 -shuffle false -write_parts true -parts_filename ${SAVENAME}&
+    
+    lastPid=$!
+    monitor_memory $lastPid
+done
 
 
-# IFSAVE=false
-# SAVENAME="hdrf_${DATANAME}_${PARTITION}"
 
-PARTITION=32
-FILEPATH="/home/bear/TrillionG/output/graph.txt"
-./twophasepartitioner -filename ${FILEPATH} -p ${PARTITION} -use_hdrf -lambda 1.1 -shuffle false
-
-interval=5
-memory_usage_file="../script/mem.log"
-
-lastPid=$!
-logMsg="./twophasepartitioner -filename ${FILEPATH} -p ${PARTITION} -use_hdrf -lambda 1.1 -shuffle false"
-echo $logMsg >> $memory_usage_file
-monitor_memory $lastPid $memory_usage_file $interval
